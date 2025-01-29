@@ -4,9 +4,12 @@ import json
 import pandas as pd
 import numpy as np
 from flask_cors import CORS
+import logging
 
 app = Flask(__name__)
-CORS(app)  # This allows CORS for all domains on all routes
+CORS(app, resources={r"/predict": {"origins": "*"}})
+
+logging.basicConfig(level=logging.DEBUG)
 
 # Load the model
 with open('random_forest_model.pkl', 'rb') as file:
@@ -110,35 +113,28 @@ def calculate_features(data):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Ensure JSON data contains the session key.
+    app.logger.info("Received prediction request")
     if not request.json or 'session' not in request.json:
+        app.logger.error("Missing session data in request")
         return jsonify({'error': 'Missing session data'}), 400
 
-    # Get the session data from the POST request.
     data = request.json['session']
     
     try:
-        # Calculate features from session data.
         features = calculate_features(data)
-        
-        # Convert features to DataFrame for model input.
         df = pd.DataFrame([features])
-        
-        # Make prediction using the loaded model.
         prediction = loaded_model.predict(df)
-
-        # Convert prediction to a native Python type (if necessary).
         prediction_value = int(prediction[0]) if isinstance(prediction[0], np.int64) else prediction[0]
-
-        # Print the result to console for debugging purposes.
-        print("Prediction result:", prediction_value)
-
-        # Return the prediction as JSON.
+        app.logger.info(f"Prediction result: {prediction_value}")
         return jsonify({'prediction': prediction_value})
     
     except Exception as e:
-        print("Error during prediction:", str(e)) # Print error message to console for debugging.
+        app.logger.error(f"Error during prediction: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)  # Set to True for development
