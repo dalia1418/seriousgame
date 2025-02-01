@@ -12,7 +12,7 @@ CORS(app, resources={r"/predict": {"origins": "*"}})
 logging.basicConfig(level=logging.DEBUG)
 
 # Load the model
-with open('random_forest_model.pkl', 'rb') as file:
+with open('random_forest_V3.pkl', 'rb') as file:
     loaded_model = pickle.load(file)
 
 def calculate_features(data):
@@ -90,7 +90,6 @@ def calculate_features(data):
         "Total Steps": total_steps,
         "Move hand": move_hand_count,
         "Collect coin": collect_coin_count,
-        "Next level": next_level_count,
         "Configuration": configuration_count,
         "Hint": use_hint_count,
         "Change timer": change_timer_count,
