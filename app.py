@@ -12,7 +12,7 @@ CORS(app, resources={r"/predict": {"origins": "*"}})
 logging.basicConfig(level=logging.DEBUG)
 
 # Load the model
-with open('random_forest_V3.pkl', 'rb') as file:
+with open('random_forest_V4.pkl', 'rb') as file:
     loaded_model = pickle.load(file)
 
 def calculate_features(data):
@@ -90,6 +90,7 @@ def calculate_features(data):
         "Total Steps": total_steps,
         "Move hand": move_hand_count,
         "Collect coin": collect_coin_count,
+        "Next level": next_level_count,
         "Configuration": configuration_count,
         "Hint": use_hint_count,
         "Change timer": change_timer_count,
@@ -121,8 +122,12 @@ def predict():
     
     try:
         features = calculate_features(data)
-        df = pd.DataFrame([features])
-        prediction = loaded_model.predict(df)
+        #df = pd.DataFrame([features])
+        df = pd.DataFrame.from_dict(features, orient='index', columns=['Value'])
+        df = df.reset_index().rename(columns={'index': 'Feature'})
+        X_new = df.values
+        X_new = np.array([float(row[1]) for row in X_new]).reshape(1, -1)
+        prediction = loaded_model.predict(X_new)
         prediction_value = int(prediction[0]) if isinstance(prediction[0], np.int64) else prediction[0]
         app.logger.info(f"Prediction result: {prediction_value}")
         return jsonify({'prediction': prediction_value})
