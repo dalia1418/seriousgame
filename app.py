@@ -13,7 +13,7 @@ CORS(app, resources={r"/predict": {"origins": "*"}})
 logging.basicConfig(level=logging.DEBUG)
 
 # Load the pre-trained model
-with open('random_forest_V4.pkl', 'rb') as file:
+with open('best_model_new.pkl', 'rb') as file:
     loaded_model = pickle.load(file)
 
 def calculate_features(data):
