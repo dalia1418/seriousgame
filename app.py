@@ -4,7 +4,7 @@ import json
 import numpy as np
 from flask_cors import CORS
 import logging
-
+import joblib
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app, resources={r"/predict": {"origins": "*"}})
@@ -13,8 +13,8 @@ CORS(app, resources={r"/predict": {"origins": "*"}})
 logging.basicConfig(level=logging.DEBUG)
 
 # Load the pre-trained model
-with open('random_forest_V4.pkl', 'rb') as file:
-    loaded_model = pickle.load(file)
+with open('best_model_new_finel.pkl', 'rb') as file:
+    loaded_model = joblib.load(file)
 
 def calculate_features(data):
     """
